@@ -18,8 +18,6 @@ Alguns artigos para estudar a parte de ML e previsão LOS.
 
 ##  ICU Length of Stay Prediction System
 
-This is a comprehensive **ICU Length of Stay (LOS) prediction system** using PySpark on Google Cloud Dataproc with MIMIC-III medical data. Here's how it works:
-
 ## 📊 Data Pipeline Overview
 
 ### 1. Data Loading & Setup
