@@ -99,4 +99,69 @@ This system predicts how long a patient will stay in the ICU based on:
 - **Validated**: Multiple model comparison with standard regression metrics
 - **Production-Ready**: Proper train/test split, feature scaling, and error handling
 
-The pipeline processes millions of clinical records to create a robust predictor that can forecast ICU length of stay with quantified accuracy metrics, enabling better hospital resource allocation and patient care planning.
+
+
+
+
+# ☁️ Google Cloud Setup & Deployment
+
+### Prerequisites
+- Google Cloud Platform account with billing enabled
+- Project ID: `bdcc2025-456512`
+- Enabled APIs: Dataproc, Compute Engine, Cloud Storage
+
+### Storage Setup
+```bash
+# Create bucket for MIMIC-III data
+gsutil mb gs://dataproc-staging-europe-west4-719881989993-sa4vn92s
+
+# Upload MIMIC-III CSV files (compressed)
+gsutil -m cp -r mimic-iii-clinical-database-1.4/ gs://your-bucket/mimic-data/
+```
+
+### Dataproc Cluster Configuration
+```bash
+# Create optimized cluster with Jupyter
+gcloud dataproc clusters create mimic-cluster \
+    --num-workers=6 \
+    --worker-machine-type=e2-highmem-4 \
+    --worker-boot-disk-size=100GB \
+    --optional-components=JUPYTER \
+    --enable-component-gateway \
+    --region=europe-west4 \
+    --project=bdcc2025-456512
+```
+
+### Cluster Specifications
+- **Master Node**: 1x e2-highmem-4 (4 vCPUs, 32GB RAM)
+- **Worker Nodes**: 6x e2-highmem-4 (4 vCPUs, 32GB RAM each)
+- **Total Resources**: 28 vCPUs, 224GB RAM
+- **Storage**: 100GB boot disk per node
+- **Jupyter Access**: Via Component Gateway (secure web interface)
+
+### Service Account Permissions
+```bash
+# Grant necessary permissions
+gcloud projects add-iam-policy-binding bdcc2025-456512 \
+    --member="serviceAccount:719881989993-compute@developer.gserviceaccount.com" \
+    --role="roles/storage.objectAdmin"
+```
+
+
+## 🎯 Use Case
+
+This system predicts how long a patient will stay in the ICU based on:
+- **Patient characteristics** when they arrive
+- **Clinical measurements** in the first 24 hours
+- **Hospital operational factors**
+
+**Applications**: Resource planning, bed management, care coordination, and early identification of patients likely to have extended stays.
+
+## 🚀 Key Features
+
+- **Scalable**: Built on PySpark for handling millions of medical records
+- **Comprehensive**: 39 carefully engineered features across 5 clinical domains
+- **Real-time Ready**: Uses only data available within 24 hours of ICU admission
+- **Validated**: Multiple model comparison with standard regression metrics
+- **Production-Ready**: Proper train/test split, feature scaling, and error handling
+
