@@ -36,8 +36,8 @@ Predict ICU stay duration using PySpark ML on MIMIC-III dataset
 - **Diagnoses (4)**: Total count, sepsis, respiratory failure
 
 ## 🤖 Models & Results
-- **Linear Regression**: R² 0.3-0.5, RMSE 2-3 days
-- **Random Forest**: R² 0.4-0.6, RMSE 2-3 days (100 trees, depth 8)
+- **Linear Regression**: 
+- **Random Forest**: 
 
 ## ☁️ Infrastructure
 - **GCP Dataproc**: 6x e2-highmem-4 workers (28 vCPUs, 224GB RAM)
