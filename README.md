@@ -16,88 +16,32 @@ Alguns artigos para estudar a parte de ML e previsão LOS.
 
 # Descrição para o LOS Forecast
 
-##  ICU Length of Stay Prediction System
 
-## 📊 Data Pipeline Overview
+# ICU Length of Stay Prediction - MIMIC-III Pipeline
 
-### 1. Data Loading & Setup
-- **Spark Configuration**: Optimized settings for adaptive query execution, Arrow integration, and Kryo serialization
-- **MIMIC-III Tables**: Loads 6 key medical datasets (CHARTEVENTS, LABEVENTS, ICUSTAYS, PATIENTS, ADMISSIONS, DIAGNOSES_ICD)
-- **Target Variable**: ICU Length of Stay in days (continuous regression problem)
+## 🎯 Objective
+Predict ICU stay duration using PySpark ML on MIMIC-III dataset
 
-### 2. Feature Engineering (5 Categories)
+## 📊 Data & Constraints
+- **Sources**: 6 MIMIC-III tables (CHARTEVENTS, LABEVENTS, ICUSTAYS, etc.)
+- **Filters**: Age 18-80, LOS 0.1-15 days, valid time sequences
+- **Timeframe**: Vitals (first 24h), Labs (6h pre to 24h post ICU)
 
-#### 👤 Demographics (2 features)
-- Age at ICU admission, Gender (binary)
+## 🔧 Features (39 total)
+- **Demographics (2)**: Age, gender
+- **Admission (8)**: Emergency/elective, timing, insurance
+- **ICU Units (6)**: Care unit types, transfers
+- **Vitals (11)**: HR, BP, RR, temp, SpO2 (avg/std)
+- **Labs (8)**: Creatinine, glucose, electrolytes, blood counts
+- **Diagnoses (4)**: Total count, sepsis, respiratory failure
 
-#### 🏥 Admission Characteristics (8 features)
-- Emergency vs elective admission, came from ER, insurance type, ethnicity
-- Time-based: weekend/night admissions, hours from hospital to ICU admission
+## 🤖 Models & Results
+- **Linear Regression**: R² 0.3-0.5, RMSE 2-3 days
+- **Random Forest**: R² 0.4-0.6, RMSE 2-3 days (100 trees, depth 8)
 
-#### 🏢 ICU Unit Types (6 features)  
-- First care unit (MICU, SICU, CSRU, CCU, TSICU)
-- Whether patient changed ICU units during stay
-
-#### 🫀 Vital Signs (11 features)
-- Heart rate, blood pressure, respiratory rate, temperature, oxygen saturation
-- Statistics: average, min, max, standard deviation (first 24 hours)
-
-#### 🧪 Laboratory Values (8 features)
-- Creatinine, glucose, electrolytes, blood counts, pH
-- Uses first available values within 24 hours of ICU admission
-
-#### 🩺 Diagnosis Features (4 features)
-- Total number of diagnoses (comorbidity burden)
-- Specific conditions: sepsis, respiratory failure, cardiac arrest
-
-### 3. Data Preprocessing
-- **Missing Value Handling**: Population-based median imputation for clinical values
-- **Outlier Removal**: Filters extreme LOS (>30 days) and invalid records
-- **Feature Scaling**: StandardScaler for normalization (mean=0, std=1)
-- **Train/Test Split**: 80/20 split with stratification
-
-### 4. Machine Learning Models
-
-#### 📈 Linear Regression
-- L2 regularization (Ridge regression)
-- Fast, interpretable baseline model
-
-#### 🌲 Random Forest
-- 100 trees, max depth 10
-- Handles non-linear relationships and feature interactions
-- Built-in feature importance
-
-### 5. Model Evaluation
-- **RMSE**: Root Mean Square Error (days)
-- **MAE**: Mean Absolute Error (days)  
-- **R²**: Coefficient of determination (explained variance)
-
-## 🔧 Technical Architecture
-
-```
-MIMIC-III Raw Data → Feature Engineering → ML Pipeline → Predictions
-     ↓                      ↓                 ↓            ↓
-   6 Tables          39 Features      Train/Test      LOS Forecast
-   (Millions         (5 Categories)    (80/20)        (Days)
-   of records)
-```
-
-## 🎯 Use Case
-
-This system predicts how long a patient will stay in the ICU based on:
-- **Patient characteristics** when they arrive
-- **Clinical measurements** in the first 24 hours
-- **Hospital operational factors**
-
-**Applications**: Resource planning, bed management, care coordination, and early identification of patients likely to have extended stays.
-
-## 🚀 Key Features
-
-- **Scalable**: Built on PySpark for handling millions of medical records
-- **Comprehensive**: 39 carefully engineered features across 5 clinical domains
-- **Real-time Ready**: Uses only data available within 24 hours of ICU admission
-- **Validated**: Multiple model comparison with standard regression metrics
-- **Production-Ready**: Proper train/test split, feature scaling, and error handling
+## ☁️ Infrastructure
+- **GCP Dataproc**: 6x e2-highmem-4 workers (28 vCPUs, 224GB RAM)
+- **Optimizations**: Smart sampling, aggressive filtering, 80/20 split
 
 
 
@@ -146,22 +90,4 @@ gcloud projects add-iam-policy-binding bdcc2025-456512 \
     --member="serviceAccount:719881989993-compute@developer.gserviceaccount.com" \
     --role="roles/storage.objectAdmin"
 ```
-
-
-## 🎯 Use Case
-
-This system predicts how long a patient will stay in the ICU based on:
-- **Patient characteristics** when they arrive
-- **Clinical measurements** in the first 24 hours
-- **Hospital operational factors**
-
-**Applications**: Resource planning, bed management, care coordination, and early identification of patients likely to have extended stays.
-
-## 🚀 Key Features
-
-- **Scalable**: Built on PySpark for handling millions of medical records
-- **Comprehensive**: 39 carefully engineered features across 5 clinical domains
-- **Real-time Ready**: Uses only data available within 24 hours of ICU admission
-- **Validated**: Multiple model comparison with standard regression metrics
-- **Production-Ready**: Proper train/test split, feature scaling, and error handling
 
